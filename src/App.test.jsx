@@ -7,11 +7,11 @@ test("complete local booking and retain digital pass and souvenir", async () => 
   document.body.innerHTML = '<div id="root"></div>';
   await import("./main.jsx");
   const user = userEvent.setup();
-  await screen.findByRole("heading", { name: /A little escape/ });
-  expect(
-    screen.getByRole("heading", { name: "Vodafone Stadium" }),
-  ).toBeTruthy();
-  await user.click(screen.getByRole("button", { name: /Nature & discovery/ }));
+  await screen.findByRole("heading", { name: /Life is better/ });
+  expect(screen.getByRole("heading", { name: /Vodafone/ })).toBeTruthy();
+  await user.click(
+    screen.getByRole("link", { name: /01 \/ Nature & discovery/ }),
+  );
   await screen.findByText("Adult day pass");
   await user.click(screen.getAllByRole("button", { name: "Add to day" })[0]);
   await user.click(screen.getByRole("link", { name: "Animal experiences" }));
@@ -23,7 +23,7 @@ test("complete local booking and retain digital pass and souvenir", async () => 
   await user.click(screen.getByRole("link", { name: "Hotel" }));
   await screen.findByText("The Garden House");
   await user.click(screen.getByRole("button", { name: "Add to day" }));
-  await user.click(screen.getByRole("button", { name: /View basket/ }));
+  await user.click(screen.getAllByRole("button", { name: /View basket/ })[0]);
   await screen.findByText("A basket full of memories.");
   expect(JSON.parse(localStorage.getItem("qpass-cart"))).toEqual({
     adult: 1,

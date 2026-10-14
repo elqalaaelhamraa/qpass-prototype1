@@ -33,51 +33,25 @@ import "@fontsource/dm-sans/700.css";
 import "@fontsource/playfair-display/400.css";
 import "@fontsource/playfair-display/400-italic.css";
 import { QRCodeSVG } from "qrcode.react";
+import { images } from "./worlds";
+import {
+  Discovery,
+  ZooHero,
+  JourneyProvider,
+  Stadium,
+  ComingWorld,
+  AnimalDirectory,
+  DayPlanner,
+  ExperienceDetail,
+  BookingProgress,
+  ProductVisual,
+  LocationSection,
+  MobileBookingDrawer,
+  RevealController,
+  Photo,
+} from "./ExperienceUI";
+import "./cinematic.css";
 
-const images = Object.fromEntries(
-  [
-    "hero",
-    "zoo",
-    "stadium",
-    "concert",
-    "balloon",
-    "giraffe",
-    "food",
-    "hotel",
-  ].map((name) => [name, `/images/${name}.svg`]),
-);
-const destinations = [
-  {
-    name: "Giza Zoo",
-    tag: "A WILD LITTLE ESCAPE",
-    type: "Nature & discovery",
-    location: "Giza, Egypt",
-    image: images.zoo,
-    price: "150",
-    live: true,
-  },
-  {
-    name: "Vodafone Stadium",
-    tag: "FEEL EVERY MOMENT",
-    type: "Sports & live action",
-    location: "Cairo, Egypt",
-    image: images.stadium,
-  },
-  {
-    name: "Concerts",
-    tag: "FIND YOUR RHYTHM",
-    type: "Music & unforgettable nights",
-    location: "Across Egypt",
-    image: images.concert,
-  },
-  {
-    name: "Hot Air Balloons",
-    tag: "A DIFFERENT PERSPECTIVE",
-    type: "Adventure & open skies",
-    location: "Luxor, Egypt",
-    image: images.balloon,
-  },
-];
 const products = {
   tickets: [
     {
@@ -136,7 +110,13 @@ const tabs = [
   ["restaurants", "Restaurants", Utensils],
   ["hotel", "Hotel", BedDouble],
 ];
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () =>
+  new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Cairo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 function readCart() {
   try {
     return JSON.parse(localStorage.getItem("qpass-cart")) || {};
@@ -230,7 +210,7 @@ function App() {
         <ShoppingBag size={19} />
       </div>
       <div className="summary-destination">
-        <img src={images.zoo} />
+        <Photo src={images.zoo} alt="Giza Zoo wildlife" />
         <div>
           <strong>Giza Zoo</strong>
           <small>
@@ -289,7 +269,15 @@ function App() {
   );
   return (
     <>
-      <header>
+      <RevealController route={route} />
+      <header
+        className={
+          ["home", "stadium", "concerts", "balloons"].includes(route) ||
+          route.startsWith("experience/")
+            ? "immersive-header"
+            : ""
+        }
+      >
         <a className="logo" href="#home">
           Q<span>PASS</span>
           <i />
@@ -299,6 +287,8 @@ function App() {
             Discover
           </a>
           <a href="#tickets">Giza Zoo</a>
+          <a href="#stadium">The stadium</a>
+          <a href="#plan">Plan your day</a>
           <a href="#pass">My passes</a>
         </nav>
         <div className="header-right">
@@ -321,177 +311,29 @@ function App() {
         </div>
       </header>
       {route === "home" ? (
-        <main>
-          <section className="hero">
-            <img
-              className="hero-img"
-              src={images.hero}
-              alt="Illustrated lion resting in a lush, sunlit landscape"
-            />
-            <div className="hero-shade" />
-            <div className="hero-content">
-              <div className="eyebrow light">
-                <span /> LESS PLANNING. MORE LIVING.
-              </div>
-              <h1>
-                A little escape.
-                <br />A lasting <em>memory.</em>
-              </h1>
-              <p>
-                Wild encounters. Front-row moments. New perspectives.
-                <br className="desktop" /> Your next great day starts with
-                QPASS.
-              </p>
-              <a
-                className="button cream"
-                href="#destinations"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document
-                    .getElementById("destinations")
-                    .scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Find your next adventure <ArrowUpRight size={19} />
-              </a>
-              <div className="hero-note">
-                <ShieldCheck size={17} /> One pass. A world of possibilities.
-              </div>
-            </div>
-            <div className="hero-caption">
-              <span>IN THE SPOTLIGHT</span>
-              <strong>Closer to the wild.</strong>
-              <a href="#tickets">
-                Discover Giza Zoo <ArrowUpRight size={16} />
-              </a>
-            </div>
-            <div className="hero-counter">
-              <span>01</span> / 04 <i />
-            </div>
-          </section>
-          <section className="trust-strip">
-            <span>
-              <Ticket /> Your whole day, one pass
-            </span>
-            <span>
-              <ShieldCheck /> Simple & secure booking
-            </span>
-            <span>
-              <Sparkles /> Experiences worth keeping
-            </span>
-            <span className="made">
-              Made for making memories <Heart size={16} />
-            </span>
-          </section>
-          <section className="destinations section" id="destinations">
-            <div className="section-heading">
-              <div>
-                <div className="eyebrow">GO SOMEWHERE GOOD</div>
-                <h2>What’s your kind of day?</h2>
-              </div>
-              <p>
-                Something wild. Something loud. Something new.
-                <br />
-                Find a little more of what makes you feel alive.
-              </p>
-            </div>
-            <div className="destination-grid">
-              {destinations.map((d, i) => (
-                <button
-                  key={d.name}
-                  className="destination-card"
-                  onClick={() =>
-                    d.live
-                      ? go("tickets")
-                      : setNotice(
-                          `${d.name} is coming soon. Explore Giza Zoo today!`,
-                        )
-                  }
-                >
-                  <div className="destination-image">
-                    <img src={d.image} alt={d.name} />
-                    <span className={"badge " + (!d.live ? "muted" : "")}>
-                      {d.live ? "NOW EXPLORING" : "COMING SOON"}
-                    </span>
-                    <span className="card-arrow">
-                      <ArrowUpRight size={20} />
-                    </span>
-                    <div className="image-caption">{d.tag}</div>
-                  </div>
-                  <div className="card-meta">
-                    <span>{d.type}</span>
-                    <span>0{i + 1}</span>
-                  </div>
-                  <h3>{d.name}</h3>
-                  <div className="card-bottom">
-                    <span>
-                      <MapPin size={13} />
-                      {d.location}
-                    </span>
-                    {d.live && (
-                      <span>
-                        From <strong>EGP {d.price}</strong>
-                      </span>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-          <section className="wild-banner section">
-            <div className="wild-art">
-              <Leaf size={72} strokeWidth={1} />
-            </div>
-            <div>
-              <div className="eyebrow">ONE DAY. SO MANY POSSIBILITIES.</div>
-              <h2>Make a day of it.</h2>
-              <p>
-                A zoo ticket is just the beginning. Add a wild encounter, a
-                delicious
-                <br className="desktop" /> detour, or a little longer to stay.
-                Your day, your way.
-              </p>
-            </div>
-            <a href="#tickets" className="button green">
-              Explore Giza Zoo <ArrowUpRight size={19} />
-            </a>
-          </section>
-          <section className="steps section">
-            <div>
-              <span>01 / DISCOVER</span>
-              <h3>Find your happy place.</h3>
-              <p>Explore destinations and pick your kind of adventure.</p>
-            </div>
-            <div>
-              <span>02 / MAKE IT YOURS</span>
-              <h3>A day with your name on it.</h3>
-              <p>Mix tickets, experiences, and little extras in one basket.</p>
-            </div>
-            <div>
-              <span>03 / JUST SHOW UP</span>
-              <h3>Good days. Zero fuss.</h3>
-              <p>Your digital pass keeps everything in one easy place.</p>
-            </div>
-          </section>
-        </main>
+        <Discovery />
+      ) : route === "stadium" ? (
+        <Stadium />
+      ) : ["concerts", "balloons"].includes(route) ? (
+        <ComingWorld id={route} />
+      ) : route === "animals" ? (
+        <AnimalDirectory />
+      ) : route === "plan" ? (
+        <DayPlanner onAdd={update} cart={cart} notify={setNotice} />
+      ) : route.startsWith("experience/") ? (
+        <ExperienceDetail
+          id={route.split("/").at(-1)}
+          stadium={route.startsWith("experience/stadium/")}
+          onAdd={update}
+          cart={cart}
+          notify={setNotice}
+        />
       ) : (
-        <main className="inner-main">
+        <main className={"inner-main route-" + route}>
+          <BookingProgress route={route} />
           {tabs.some((t) => t[0] === route) ? (
             <>
-              <a className="back-link" href="#home">
-                <ArrowLeft size={15} /> All destinations
-              </a>
-              <section className="zoo-heading">
-                <div>
-                  <div className="eyebrow">A WILD LITTLE ESCAPE</div>
-                  <h1>A day closer to nature.</h1>
-                  <p>
-                    <MapPin size={15} /> Giza Zoo, Egypt <span>·</span> Open
-                    daily, 9:00 am – 5:00 pm
-                  </p>
-                </div>
-                <img src={images.zoo} alt="A day in the wild" />
-              </section>
+              <ZooHero route={route} />
               <div className="booking-layout">
                 <div>
                   <div className="tabs">
@@ -505,6 +347,14 @@ function App() {
                         {label}
                       </a>
                     ))}
+                  </div>
+                  <div className="zoo-subnav">
+                    <a href="#animals">
+                      Meet the residents <PawPrint size={14} />
+                    </a>
+                    <a href="#plan">
+                      Plan your day <ArrowUpRight size={14} />
+                    </a>
                   </div>
                   <div className="product-intro">
                     <div className="eyebrow">BUILD YOUR PERFECT DAY</div>
@@ -533,25 +383,11 @@ function App() {
                       }
                     </p>
                   </div>
-                  {route !== "tickets" && (
-                    <img
-                      className="category-image"
-                      src={
-                        images[
-                          route === "experiences"
-                            ? "giraffe"
-                            : route === "restaurants"
-                              ? "food"
-                              : "hotel"
-                        ]
-                      }
-                      alt={route}
-                    />
-                  )}
                   <div className="product-list">
                     {products[route].map((p) => (
                       <div className="product" key={p.id}>
-                        <div>
+                        <ProductVisual product={p} route={route} />
+                        <div className="product-info">
                           <h3>{p.name}</h3>
                           <p>{p.desc}</p>
                           <strong>
@@ -610,6 +446,13 @@ function App() {
                   </small>
                 </aside>
               </div>
+              <LocationSection />
+              <MobileBookingDrawer
+                count={count}
+                total={total}
+                summary={summary}
+                onBasket={() => go("basket")}
+              />
             </>
           ) : route === "basket" ? (
             <>
@@ -758,9 +601,10 @@ function App() {
                   }
                 >
                   <div className="pass-picture">
-                    <img
+                    <Photo
                       src={images[route === "souvenir" ? "giraffe" : "zoo"]}
                       alt="Giza Zoo keepsake"
+                      eager
                     />
                     <span className="logo">
                       Q<span>PASS</span>
@@ -859,6 +703,14 @@ function App() {
             Go make a memory <ArrowUpRight size={16} />
           </a>
         </div>
+        <div className="footer-links">
+          <a href="#animals">The animal directory</a>
+          <a href="#stadium">The stadium collection</a>
+          <a href="#plan">Plan your day</a>
+          <a href="/CREDITS.md" target="_blank" rel="noreferrer">
+            Visual credits
+          </a>
+        </div>
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} QPASS. A world of good days.</span>
           <span>Prototype experience · Mock bookings only</span>
@@ -895,4 +747,8 @@ function QRCode({ value }) {
     />
   );
 }
-createRoot(document.getElementById("root")).render(<App />);
+createRoot(document.getElementById("root")).render(
+  <JourneyProvider>
+    <App />
+  </JourneyProvider>,
+);
